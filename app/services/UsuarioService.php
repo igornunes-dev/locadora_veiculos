@@ -3,6 +3,7 @@
 namespace services;
 
 use database\Database;
+use models\UserLogin;
 use models\UserModel;
 
 class UsuarioService
@@ -28,11 +29,17 @@ class UsuarioService
 
     public function loginUser(UserLogin $user): bool
     {
-        $sql = "SELECT * FROM users WHERE email = :email";
+        $sql = "SELECT * FROM usuarios WHERE email = :email";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             "email" => $user->getEmail()
         ]);
-        return $stmt->fetch(\PDO::FETCH_OBJ);
+        $usuario = $stmt->fetch(\PDO::FETCH_OBJ);
+
+        if ($usuario && ($user->getSenha() == $usuario->senha)) {
+            return true;
+        }
+        // Login inválido
+        return false;
     }
 }
